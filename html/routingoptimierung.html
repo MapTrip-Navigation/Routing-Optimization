@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta name="description" content="">
+    <meta name="author" content=""> -->
+
+    <title>Routing Optimization</title>
+
+    <!-- Beispiel CSS -->
+    <link href="../css/routingOptimierung.css" rel="stylesheet">
+
+    <!-- JQUERY 3.5.1 -->
+    <link href="../js/jquery-3.5.1.js" >
+
+    <!-- Custom CSS -->
+    <!-- <link href="../dist/css/sb-admin-2.css" rel="stylesheet"> -->
+
+    <!-- <script type="text/javascript" src="https://maps.infoware.de/MapAPI-1.3/js/core.js?vnr=0&pnr=0&modules=controls,graphics"></script> -->
+    <script type="text/javascript" src="https://maps.infoware.de/MapAPI-1.3/js/core.js?vnr=0&pnr=0&modules=vectortiles,graphics,routing,controls"></script>
+
+
+</head>
+
+<body>
+
+    <div id="page-wrapper">
+        <div class="">
+            <h1>Routing Optimization</h1>
+        </div>
+
+        <div class="">
+              <div class="">
+                <div class="input-group-prepend">
+                    <!-- <button class="btn btn-outline-secondary btn-upload" type="button" id="upload-btn">Upload</button> -->
+                  </div>
+              </div>
+        </div>
+
+        <div class="main-container">
+            <div id="table-container">
+                <div class="costum-file-upload">
+                    <fieldset class="upload-fieldset">
+                        <legend class="legend-title">Upload</legend>  
+                        <input type="file" class="" id="inputGroupFile03">
+                      </fieldset>
+
+                  </div>
+                <div id="showCoords-Container">
+                    <fieldset class="coords-liste">
+                      <legend class="legend-title">Koordinaten</legend>  
+                      <div>
+                        <ol id="list-table">
+                        </ol>
+                    </div>
+                    </fieldset>
+                </div>
+
+                <div class="btn-container">
+                    <button class="btn-opti" id="opti-btn" type="button">Optimieren <div class="load-spinner" id="load"></div></button>
+                    <button class="btn-download" id="download-btn" type="button">Download</button>
+                </div>             
+            </div>
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+            <div class="routing-info-container">
+                <fieldset class="routing-info-fieldset">
+                    <legend class="legend-title">Routing-Information</legend>  
+                    <div id="before-optimize">
+                  </div>
+                  <div id="after-optimize">
+
+                  </div>
+                  </fieldset>
+            </div>
+        </div>     
+        
+        <footer>
+            <p>
+                Copyright
+                <span id="current-year">2021</span>
+                <a href="http://www.infoware.de/">infoware GmbH</a>
+            </p>
+        </footer>
+
+    </div>
+
+
+
+
+
+<script src="../js/routingOptimierung.js"></script>
+<script src="../js/jquery-3.5.1.js"></script>
+
+
+</body>
+
+    
+
+
+
+</html>
