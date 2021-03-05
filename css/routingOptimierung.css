@@ -1,5 +1,12 @@
+@font-face{
+    font-family: 'Roboto';
+    src: url(fonts/Roboto-Regular.ttf);
+}
+
+
 body{
-    font-family: sans-serif, reverse;
+    font-family: Roboto;
+    background-color: rgba(247, 244, 244, 0.966);
 }
 
 #page-wrapper{
@@ -11,6 +18,30 @@ h1 {
     text-align: center;
     margin-bottom: 2rem;
     margin-top: 1rem;
+}
+
+.uebschrift{
+    color: #BD1550;
+    /* color: #E02F88; */
+}
+
+/* Fehler Meldung Container */
+
+.error-container{
+    border: 1px solid;
+    border-radius: 1rem;
+    background-color: red;
+}
+.error-title{
+    text-align: center;
+    font-size: 25px;
+    font-weight: bold;
+    margin-bottom: 1px;
+}
+.error-text{
+    padding: 1rem;
+    font-size: 18px;
+    margin-top: 1px;;
 }
 
 /* Upload Container */
