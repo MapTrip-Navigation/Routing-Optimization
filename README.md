@@ -10,7 +10,7 @@ To build a Application like this you need to integrate our MapAPI in your Websit
 
 For the Optimization you need to use the following request.
 
-![](readme_png/optimizationlink.PNG)
+![](readme_png/optimizationurl.PNG)
 
 ## Supported Formats
 
