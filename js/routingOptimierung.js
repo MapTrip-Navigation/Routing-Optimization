@@ -299,7 +299,6 @@ function optimizeRouting(fileCoords, map) {
         let stringX = coordsInMercator._x.toString().split(".")[0];
         let stringY = coordsInMercator._y.toString().split(".")[0];
 
-
         let coordinates = 'coordinates=' + stringX + ';' + stringY;
         tempCoords.push(coordinates)
     });
