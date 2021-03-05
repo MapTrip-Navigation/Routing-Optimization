@@ -11,3 +11,4 @@ To build a Application like this you need to integrate our MapAPI in your Websit
 For Uploading a CSV file it must have the following format (LAT;LONG)
 
 ![](readme_png/KoordinatenFormat.png)
+<img src="readme_png/KoordinatenFormat.png">
