@@ -10,7 +10,7 @@ The easiest way is to include the core.js, which contains the mapping parts them
 
 just insert this 
 
-![](readme_png/optimization)
+![](readme_png/MapAPILink.PNG)
 
 into your page and start using the API. This will load the core API, the modules vectortiles , graphics , routing and controls.
 
