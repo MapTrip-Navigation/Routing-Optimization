@@ -1,31 +1,13 @@
-# Routing Optimization Example 
+# How To Optimize And Navigate 200 Stops
 
-This project shows you how to you build a Routing Optimization Application with our MapTrip MapAPI. 
+A customer had 200 stops which he needs to visit in one tour. Here is what we suggested to meet the challenge. First, the stops need to be put in the optimal order to minimize drive time and distance. Then a FollowMe navigation file is created which contains an event at each location. This can then be uploaded to the FollowMe Editor and synchronized with MapTrip for navigation
 
-## Requirements
+## Preparations
 
-To build a Application like this you need to integrate our MapAPI in your Website.
+## Upload Locations, Show On Map, Calculate Route
 
-![](readme_png/MapAPILink.PNG)
+## Optimize Stop Sequence
 
-For the Optimization you need to use the following request.
+## Create FollowMe-Track From Route File
 
-![](readme_png/optimizationurl.PNG)
-
-## Using the Application
-
-Here is a link to our Application
-https://maps.infoware.de/MapAPI-1.2/examples/RoutingOptimierung/html/routingoptimierung.html
-
-To try out our Website you need a browser and internet access.
-
-The application ensures that you can upload coordinates and get them back in an optimized order as a route.
-
-## Supported Formats
-
-For Uploading a CSV file it must have the following format (LAT;LONG)
-
-Here is an example of the right format:
-
-![](readme_png/KoordinatenFormat.PNG)
-
+## Upload To FollowMe Editor And Sync To MapTrip
