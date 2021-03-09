@@ -47,14 +47,16 @@ Next, you can perform a optimization. if you click on the Optimise button , then
 All you have to do is to pass an array with the Coordinates and the map as a parameter to the function. 
 The first step is to create new IWCoordinate from the coordinates.
 
+![](readme_png/ArrayForOptimize.PNG)
 
 Here you must note that the coordinates should have the projection type Mercator.
 The coordinates are saved into a new array and inserted at the following interface.
 
+![](readme_png/optimizationurl.PNG)
 
 The url refers to our Optimizer and creates an optimal sequence from the coordinates.
 
-With the result we get the array with the optimal order and create coordinates with the projection type WGS84. These are then saved in an array. Now you can pass the array to the functions showMarker and showRoute. They show the new order of the markers on the map and the new calculated route.
+With the result we get the array with the optimal order and create new IWCoordinates with the projection type WGS84. These are then saved in an array. Now you can pass the array to the functions showMarker and showRoute. They show the new order of the markers on the map and the new calculated route.
 
 
 
