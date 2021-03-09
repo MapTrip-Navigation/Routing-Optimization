@@ -16,6 +16,30 @@ into your page and start using the API. This will load the core API, the modules
 
 ## Upload Locations, Show On Map, Calculate Route
 
+Upload Locations: 
+
+First off all you need a CSV file with Coordinates that you can uploaded. 
+
+![](readme_png/uploadContainer.PNG)
+
+After the csv is uploaded the function loadTextFile will be called. 
+
+The Function saves the Coordinates and checks them according to the following criteria:
+
+=> If the csv file have more than 200 Coordinates , then dives an error message.
+
+=> If the Coordinates are longer than 200 Km from each other , then dives an error message
+
+After the csv file has been checked , two functions are called.
+
+The First Function that will be called is showMarker. Markers are created from the coordinates and are displayed on the map. Every Marker have a Number that a orderd by the csv file. In addition to the map, the list of the Coordinates are also displayed.
+
+![](readme_png/showMarker.PNG)
+
+The Second Function that will be called is showRoute. This function calculate a Route through all stops.
+
+![](readme_png/showRoute.PNG)
+
 ## Optimize Stop Sequence
 
 ## Create FollowMe-Track From Route File
