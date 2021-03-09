@@ -42,6 +42,10 @@ The Second Function that will be called is showRoute. This function calculate a 
 
 ## Optimize Stop Sequence
 
+Next, you can perform a optimization. if you click on the Optimise button , then a loading bar appears until the optimised sequence has been successfully created. The new order of the Markers will be displayed on the map and a route will be calculated. All this is done by the function OptimizeRouting.
+
+All you have to do is to pass an array and the map as a parameter to the function. 
+
 ## Create FollowMe-Track From Route File
 
 ## Upload To FollowMe Editor And Sync To MapTrip
