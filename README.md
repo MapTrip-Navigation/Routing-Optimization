@@ -58,7 +58,7 @@ The url refers to our Optimizer and creates an optimal sequence from the coordin
 
 With the result we get the array (optimizeCoords) with the optimal order and create new IWCoordinates with the projection type WGS84. These are then saved in an array. Now you can pass the array to the functions showMarker and showRoute. They show the new order of the markers on the map and the new calculated route.
 
-Note!! : We have also create a array (optimizeResult) with the optimal order but with the projection type Mercator. This important for the nex function to crate a FollowMe-Track from the route file.
+Note!! : We have also create a array (optimizeResult) with the optimal order but with the projection type Mercator. This important for the nex function to create a FollowMe-Track from the route file.
 
 
 
@@ -94,9 +94,11 @@ we push our stops in a seperate Array.
 
 The first coordinate is always a stop, which we can push and delete from the separate array.
 
+![](readme_png/RouteCoords30mDistance2.PNG)
+
 Here we call our loop . We Call moveAlongPath which will return the Coordinates with the next point on the path. If the moveAlongPath returned null, so there are no more check points.
 
-![](readme_png/RouteCoords30mDistance2.PNG)
+![](readme_png/RouteCoords30mDistanc4.PNG)
 
 The last thing we do is push the first coordinate separately.  
 
