@@ -115,3 +115,5 @@ and pass them to the download button.
 
 
 ## Upload To FollowMe Editor And Sync To MapTrip
+
+![](readme_res/uploadFME-Track.gif)
