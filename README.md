@@ -104,4 +104,14 @@ The last thing we do is push the first coordinate separately.
 
 ![](readme_png/RouteCoords30mDistanc3.PNG)
 
+We have our final array that we still need to format with the function exportToCsVFile 
+
+![](readme_png/download1.PNG)
+
+
+and pass them to the download button. 
+
+![](readme_png/download2.PNG)
+
+
 ## Upload To FollowMe Editor And Sync To MapTrip
