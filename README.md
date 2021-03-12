@@ -56,11 +56,50 @@ The coordinates are saved into a new array and inserted at the following interfa
 
 The url refers to our Optimizer and creates an optimal sequence from the coordinates.
 
-With the result we get the array with the optimal order and create new IWCoordinates with the projection type WGS84. These are then saved in an array. Now you can pass the array to the functions showMarker and showRoute. They show the new order of the markers on the map and the new calculated route.
+With the result we get the array (optimizeCoords) with the optimal order and create new IWCoordinates with the projection type WGS84. These are then saved in an array. Now you can pass the array to the functions showMarker and showRoute. They show the new order of the markers on the map and the new calculated route.
 
+Note!! : We have also create a array (optimizeResult) with the optimal order but with the projection type Mercator. This important for the nex function to crate a FollowMe-Track from the route file.
 
 
 
 ## Create FollowMe-Track From Route File
+If the optimised route is now displayed, you get a Object from the event onorute.
+
+![](readme_png/EventOnroute.PNG)
+
+Now you can make a FollowMe track out of it. Here you have to call the function exportAllCoordinates. You need to pass the array (optimizeResult) and the event as a parameter to the function.
+With the object you get the route file with all coordinates.
+We have to format the coordinates for the later course.
+
+![](readme_png/exportAllCoordinates1.PNG)
+
+Here we need to check which of the coordinates is a stop.
+
+![](readme_png/exportAllCoordinates2.PNG)
+
+It can happen that some stop coordinates are duplicated. What we need to do is to filter them out.
+
+![](readme_png/exportAllCoordinates3.PNG)
+
+This is what our array currently looks like
+
+![](readme_png/ArrayExample.PNG)
+
+
+Now we want to use the function getRouteCoordsWith30mDistance to make sure that our coordinates are all 30m apart. For this we pass the array above to the function.
+
+we push our stops in a seperate Array. 
+
+![](readme_png/RouteCoords30mDistance.PNG)
+
+The first coordinate is always a stop, which we can push and delete from the separate array.
+
+Here we call our loop . We Call moveAlongPath which will return the Coordinates with the next point on the path. If the moveAlongPath returned null, so there are no more check points.
+
+![](readme_png/RouteCoords30mDistance2.PNG)
+
+The last thing we do is push the first coordinate separately.  
+
+![](readme_png/RouteCoords30mDistanc3.PNG)
 
 ## Upload To FollowMe Editor And Sync To MapTrip
