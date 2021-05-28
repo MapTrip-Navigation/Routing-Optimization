@@ -1,116 +1,133 @@
-@font-face{
+@font-face {
     font-family: 'Roboto';
     src: url(fonts/Roboto-Regular.ttf);
 }
 
-
-body{
+body {
     font-family: Roboto;
     background-color: rgba(247, 244, 244, 0.966);
 }
 
-#page-wrapper{
+#page-wrapper {
     margin-left: 150px;
     margin-right: 150px;
 }
+
+
 /* Überschrift */
+
 h1 {
     text-align: center;
     margin-bottom: 2rem;
     margin-top: 1rem;
+    font-weight: bold;
 }
 
-.uebschrift{
+.uebschrift {
     color: #BD1550;
     /* color: #E02F88; */
 }
 
+
 /* Fehler Meldung Container */
 
-.error-container{
+.error-container {
     border: 1px solid;
     border-radius: 1rem;
     background-color: red;
 }
-.error-title{
+
+.error-title {
     text-align: center;
     font-size: 25px;
     font-weight: bold;
     margin-bottom: 1px;
 }
-.error-text{
+
+.error-text {
     padding: 1rem;
     font-size: 18px;
-    margin-top: 1px;;
+    margin-top: 1px;
+    ;
 }
+
 
 /* Upload Container */
 
-.custom-upload-file-input{
-border: 1px solid darkgrey;
+.custom-upload-file-input {
+    border: 1px solid darkgrey;
 }
 
+#inputFile {
+    font-size: 17px;
+    width: 320px;
+    ;
+}
 
-#inputGroupFile03{
-font-size: 17px;
+.upload-fieldset {
+    border: 2px solid threedface;
+    border-radius: 6px;
+    height: 6rem;
+    border-style: groove;
 }
 
 
 /* BUTTON Container */
-.btn-container{
+
+.btn-container {
     margin-top: 10px;
     margin-bottom: 10px;
 }
-.btn-opti{
+
+.btn-opti {
     font-size: 20px;
     /* margin-left: 10px; */
-    margin-right: 15px;
     width: 8rem;
-    padding: 5px;;
 }
-.btn-download{
+
+.btn-download {
     font-size: 20px;
     /* margin-left: 10px; */
-    margin-left: 15px;
     width: 8rem;
-    padding: 5px;;
 }
 
-.load-spinner{
-    display:    none;
-    position:   fixed;
-    z-index:    1000;
-    top:        0;
-    left:       0;
-    height:     100%;
-    width:      100%;
-    background: rgba( 255, 255, 255, .8 ) 
-                url('http://i.stack.imgur.com/FhHRx.gif') 
-                50% 50% 
-                no-repeat;
+.load-spinner {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba( 255, 255, 255, .8) url('http://i.stack.imgur.com/FhHRx.gif') 50% 50% no-repeat;
 }
 
-.loading{
+.loading {
     overflow: hidden;
     display: block;
 }
 
+
 /* MAIN CONTAINER  */
 
-#showCoords-Container{
+#showCoords-Container {
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
-.main-container{
+.main-container {
     display: flex;
     justify-content: center;
 }
 
+
 /* Map Container */
 
-.map-container{
-     width: 50%; 
+#map-container {
+    width: 52%;
+    height: 600px;
+    /* height: 100px; */
+    /* width: 100px;; */
 }
 
 #map {
@@ -119,28 +136,25 @@ font-size: 17px;
     width: 100%;
 }
 
+
 /* Tabelle/Liste der Koordinaten */
-#table-container{
+
+#table-container {
     width: 500px;
     margin-left: 20px;
     margin-right: 20px;
 }
-.coords-liste{
+
+.coords-liste {
     display: block;
-    margin-inline-start: 2px;
-    margin-inline-end: 2px;
-    padding-block-start: 0.35em;
-    padding-inline-start: 0.75em;
-    padding-inline-end: 0.75em;
-    padding-block-end: 0.625em;
-    min-inline-size: min-content;
     border-width: 2px;
     border-style: groove;
     border-color: threedface;
     border-image: initial;
+    border-radius: 6px;
 }
 
-.legend-title{
+.legend-title {
     display: block;
     padding-inline-start: 2px;
     padding-inline-end: 2px;
@@ -150,49 +164,58 @@ font-size: 17px;
     border-image: initial;
     float: none;
     width: auto;
+    margin-left: 15px;
 }
 
-.koordinaten{
-margin-top: 2px;
-margin-bottom: 2px;
+.koordinaten {
+    margin: 14px;
+    background-color: rgba(247, 244, 244, 0.966);
+    font-size: 13px;
+    padding: 10px;
 }
 
-.list-overflow{
-height: 363px;
-overflow-y: auto;
-padding-left: 32px;
+.list-overflow {
+    height: 363px;
+    overflow-y: auto;
 }
+
 
 /* Routing Infomationen */
 
-.routing-info-container{
+.routing-info-container {
     margin-left: 20px;
     margin-right: 20px;
 }
 
-.routing-info-fieldset{
+.routing-info-fieldset {
     width: 250px;
+    border-width: 2px;
+    border-style: groove;
+    border-color: threedface;
+    border-image: initial;
+    border-radius: 6px;
 }
 
-#before-optimize{
-margin-top: 20px;
-margin-bottom: 20px;
+#before-optimize {
+    margin: 19px;
 }
 
-#after-optimize{
-margin-top: 20px;
-margin-bottom: 20px;
+#after-optimize {
+    margin: 19px;
 }
+
 
 /* ENDE MAIN CONTAINER  */
 
+
 /* FOOTER */
-footer{
+
+footer {
     margin-top: 10px;
     margin-bottom: 10px;
     padding-top: 20px;
     color: #777777;
     text-align: center;
     font-size: small;
-    clear: left;  
+    clear: left;
 }
