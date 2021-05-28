@@ -11,11 +11,14 @@
 
     <title>Routing Optimization</title>
 
+    <!-- Bootsrap CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+
     <!-- Beispiel CSS -->
     <link href="../css/routingOptimierung.css" rel="stylesheet">
 
     <!-- JQUERY 3.5.1 -->
-    <link href="../js/jquery-3.5.1.js" >
+    <link href="../js/jquery-3.5.1.js">
 
     <!-- Custom CSS -->
     <!-- <link href="../dist/css/sb-admin-2.css" rel="stylesheet"> -->
@@ -33,58 +36,82 @@
 
 <body>
 
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+        </symbol>
+        <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+        </symbol>
+        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+        </symbol>
+      </svg>
+
+
     <div id="page-wrapper">
-        <div class="">
+        <div class="row">
             <h1 class="uebschrift">Routing Optimierung</h1>
         </div>
 
         <div class="">
-              <div class="">
+            <div class="">
                 <div class="input-group-prepend">
                     <!-- <button class="btn btn-outline-secondary btn-upload" type="button" id="upload-btn">Upload</button> -->
-                  </div>
-              </div>
+                </div>
+            </div>
         </div>
+        <div class="row justify-content-between">
+            <div class="col-lg-3">
+                <div>
+                    <div class="costum-file-upload">
+                        <fieldset class="upload-fieldset">
+                            <legend class="legend-title">Upload</legend>
+                            <div class="d-flex justify-content-center">
+                                <input type="file" class="form-control" id="inputFile" />
+                            </div>
+                            <!-- <label class="form-label" for="customFile">Upload</label> -->
 
-        <div class="main-container">
-            <div id="table-container">
-                <div class="costum-file-upload">
-                    <fieldset class="upload-fieldset">
-                        <legend class="legend-title">Upload</legend>  
-                        <input type="file" class="" id="inputGroupFile03">
-                      </fieldset>
+                            <!-- <input type="file" class="" id="inputGroupFile03"> -->
+                        </fieldset>
+                    </div>
 
-                  </div>
+                </div>
                 <div id="showCoords-Container">
                     <fieldset class="coords-liste">
-                      <legend class="legend-title">Koordinaten</legend>  
-                      <div id="list-table-container">
-                        <ol id="list-table">
-                        </ol>
-                    </div>
+                        <legend class="legend-title">Koordinaten</legend>
+                        <div id="list-table-container">
+                            <ol class="list-group list-group-numbered" id="list-table">
+                            </ol>
+                        </div>
                     </fieldset>
                 </div>
 
-                <div class="btn-container">
-                    <button class="btn-opti" id="opti-btn" type="button">Optimieren <div class="load-spinner" id="load"></div></button>
-                    <button class="btn-download" id="download-btn" type="button">Download</button>
-                </div>             
+                <div class="btn-container d-flex justify-content-between">
+                    <button class="btn btn-primary btn-opti" id="opti-btn" type="button">Optimieren <div class="load-spinner" id="load">
+                        </div></button>
+                    <button class="btn btn-secondary btn-download" id="download-btn" type="button">Download</button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal">
+                        <svg class="bi flex-shrink-0" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                    </button>
+                </div>
             </div>
-            <div class="map-container">
+            <div class="col-lg-7" id="map-container">
                 <div id="map"></div>
             </div>
-            <div class="routing-info-container">
+            <div class=" col-lg-2">
                 <fieldset class="routing-info-fieldset">
-                    <legend class="legend-title">Routing-Information</legend>  
+                    <legend class="legend-title">Routing-Information</legend>
                     <div id="before-optimize">
-                  </div>
-                  <div id="after-optimize">
+                    </div>
+                    <div id="after-optimize">
 
-                  </div>
-                  </fieldset>
+                    </div>
+                </fieldset>
             </div>
-        </div>     
-        
+        </div>
+    </div>
+    <div class="row">
         <footer>
             <p>
                 Copyright
@@ -92,20 +119,102 @@
                 <a href="http://www.infoware.de/">infoware GmbH</a>
             </p>
         </footer>
+    </div>
+    </div>
 
+
+    <!-- Modal Ungültgie Datei -->
+    <div class="modal fade" id="invalidFile" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <svg class="bi flex-shrink-0 me-2" width="24" height="24"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                        <div>
+                            Sie haben eine ungültige Datei Hochgeladen! Bitte nur Text Dateien hochladen.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Beenden</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ungültgie Eingabe in der Datei -->
+    <div class="modal fade" id="invalidData" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class=" modal-title alert alert-danger d-flex align-items-center text-center" style="width: 100%; place-content: center;" role="alert">
+                        <svg class="bi flex-shrink-0 me-2" width="24" height="24"><use xlink:href="#exclamation-triangle-fill"/></svg> Fehler in der Datei
+                    </div>
+                    <!-- <div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div> -->
+                </div>
+                <div class="modal-body">
+                    <div id="errorInFileContainer">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Beenden</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal Information -->
+    <div class="modal fade" id="infoModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="alert alert-primary d-flex align-items-center" style="width: 100%; margin: 0;" role="alert">
+                        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                        <div>
+                            Information
+                        </div>
+                    </div>
+                    <!-- <div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div> -->
+                </div>
+                <div class="modal-body">
+                    <div id="informationContainer">
+                        <h6>Herzlich Wilkommen auf unsere Routing Optimierungs Website.</h6>
+                        <span class="mt-2 mb-2">Bevor Sie mit dem Optimieren loslegen, sollten sie ein paar Hinweise beachten.</span>
+                        <div class="mt-2 mb-2">1. Beim Hochladen der Datei benutzen sie den richtigen Dateitypen. Unser Optimierer unterstützt Text und CSV Dateien.</div>
+                        <div class="mt-2 mb-2">2. Adressen im gültigen Format hochladen..</div>
+                        <div class="mt-2 mb-2">Eine gültige Eingabe lautet:</div>
+                        <span class="mt-2 mb-2">Straße; Hausnummer; Postleitzahl; Stadt</span>
+                        <div class="mt-2 mb-2">Hier ein kleines Beipsiel wie die Datei aussehen kann:
+                            <img class="mt-2" src="../css/beispielAdressen.PNG" alt="">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Beenden</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 
 
-
-
-<script src="../js/routingOptimierung.js"></script>
-<script src="../js/jquery-3.5.1.js"></script>
+    <script src="../js/bootstrap.js"></script>
+    <script src="../js/FileAPI.min.js"></script>
+    <script src="../js/routingOptimierung.js"></script>
+    <script src="../js/jquery-3.5.1.js"></script>
 
 
 </body>
 
-    
 
 
 
