@@ -14,23 +14,77 @@ just insert this
 
 into your page and start using the API. This will load the core API, the modules vectortiles , graphics , routing and controls.
 
-## Upload Locations, Show On Map, Calculate Route
+Also you need the FileAPI.min.js from https://github.com/mailru/FileAPI. The File is already included in the project.
 
-Upload Locations: 
+## Upload Locations (Coordinates or Addresses), Show On Map, Calculate Route
+
+
+Upload Locations:
 
 First off all you need a CSV file with Coordinates that you can uploaded. 
 
 ![](readme_png/uploadContainer.PNG)
 
-After the csv is uploaded the function loadTextFile will be called. 
+After the file is uploaded the function openDataFromFile will be called. The function checks which type file you have choiced and what kind of Data you uploaded.
 
-The Function saves the Coordinates and checks them according to the following criteria:
+You can choice which file type you want to upload. You have two Options.
+
+1. CSV File
+2. Text File
+
+When you have chosen between the two options, you can choose whether you want to upload addresses or coordinates.
+
+Coordinates:
+
+When you uploading coordinates, make sure that the formatting is valid. In each line belong latitude and longtitude. 
+You must always separate them with a semicolon.
+Here is an example 
+
+![](readme_png/KoordinatenBeispiel.PNG)
+
+Addresses:
+
+When you uploading Addresses, make sure that the formatting is valid. In each line belong Street , Housenumber, Zipcode and City. 
+You must always separate them with a semicolon.
+Here is an example 
+
+![](readme_png/AdressenBeispiel.PNG)
+
+If you choice to upload Coordinates , the function saves the Coordinates and checks them according to the following criteria:
 
 => If the csv file have more than 200 Coordinates , then dives an error message.
 
 => If the Coordinates are longer than 200 Km from each other , then dives an error message
 
-After the csv file has been checked , two functions are called.
+After the file has been checked , two functions are called.
+
+
+If you choice to upload Addresses, they are first geocoded and then checked for the same criteria as for coordinates.
+
+For the Adresses the function createObjectAndCheckForEachLine will be called. The function create for each Addresses in the file a new Object that be saved in a array. 
+The function also checks if there are errors in the file.
+
+Then we called Asynchronous function processArray. This function gecoding each Addresses.
+
+![](readme_png/geocodeAdressen.PNG)
+
+You need to initialize the geocoder client.
+
+![](readme_png/geocoderclient.PNG)
+
+Here we instantiate the IWGeocoderClient class and add a listener to the IWEventManager object. Listen for geocoding event 'ongeocode' and call the AddressToCoords(event, map) method when the event is triggered.
+
+
+The function gets the result back and stores the coordinates in an array.
+
+After this has been completed, the following criteria are checked, as with the coordinates.
+
+=> If the csv file have more than 200 Coordinates , then dives an error message.
+
+=> If the Coordinates are longer than 200 Km from each other , then dives an error message
+
+After the file has been checked , two functions are called.
+
 
 The First Function that will be called is showMarker. Markers are created from the coordinates and are displayed on the map. Every Marker have a Number that a orderd by the csv file. In addition to the map, the list of the Coordinates are also displayed.
 
