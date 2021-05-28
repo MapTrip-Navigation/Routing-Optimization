@@ -163,7 +163,7 @@ We have our final array that we still need to format with the function exportToC
 ![](readme_png/download1.PNG)
 
 
-and pass them to the download button. 
+and pass them to the download button
 
 ![](readme_png/download2.PNG)
 
