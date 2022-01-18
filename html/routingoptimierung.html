@@ -75,7 +75,21 @@
                             <!-- <input type="file" class="" id="inputGroupFile03"> -->
                         </fieldset>
                     </div>
-
+                    <div class="costum-file-upload">
+                        <fieldset class="routingOption-fieldset">
+                            <legend class="legend-title">Routing Option</legend>
+                            <div class="d-flex justify-content-around">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="oneWayRadio1" value="oneway" checked="checked">
+                                    <label class="form-check-label" for="oneWayRadio1">Hinfahrt</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="roundTripRadio2" value="roundtrip">
+                                    <label class="form-check-label" for="roundTripRadio2">Rundfahrt</label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
                 </div>
                 <div id="showCoords-Container">
                     <fieldset class="coords-liste">
@@ -190,11 +204,15 @@
                         <h6>Herzlich Wilkommen auf unsere Routing Optimierungs Website.</h6>
                         <span class="mt-2 mb-2">Bevor Sie mit dem Optimieren loslegen, sollten sie ein paar Hinweise beachten.</span>
                         <div class="mt-2 mb-2">1. Beim Hochladen der Datei benutzen sie den richtigen Dateitypen. Unser Optimierer unterstützt Text und CSV Dateien.</div>
-                        <div class="mt-2 mb-2">2. Adressen im gültigen Format hochladen..</div>
+                        <div class="mt-2 mb-2">2. Adressen im gültigen Format oder Koordinaten hochladen..</div>
                         <div class="mt-2 mb-2">Eine gültige Eingabe lautet:</div>
                         <span class="mt-2 mb-2">Straße; Hausnummer; Postleitzahl; Stadt</span>
-                        <div class="mt-2 mb-2">Hier ein kleines Beipsiel wie die Datei aussehen kann:
+                        <div class="mt-2 mb-2">Hier ein kleines Beispiel wie die Datei aussehen kann:
                             <img class="mt-2" src="../css/beispielAdressen.PNG" alt="">
+                        </div>
+                        <div>
+                            oder im Koordinatenformat:
+                            <img class="mt-2" src="../css/beispielkoordinaten.PNG" alt="">
                         </div>
                     </div>
                 </div>

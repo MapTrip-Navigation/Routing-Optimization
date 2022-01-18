@@ -1,13 +1,13 @@
+let map;
 document.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById('current-year').innerHTML = (new Date()).getFullYear();
     // Create the map object
-    var map = new IWMap(document.getElementById('map'));
+    map = new IWMap(document.getElementById('map'));
     let mapType = map.getOptions().getMapTypeByName('vector');
     let mapContainer = document.getElementById('map-container')
     map.getOptions().setAutoResize(true, mapContainer);
     map.setCenter(new IWCoordinate(7.1408879, 50.70150837, IWCoordinate.WGS84), 12, mapType);
-    let renderer = new IWMapRenderer(map);
     IWRoutingManager.initialize(map);
 
 
@@ -33,11 +33,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
     geocoder = new IWGeocoderClient();
 
+    let renderer = new IWMapRenderer(map);
+
+
+
     FileAPI.event.on(fileInput, 'change', function(evt) {
         var files = FileAPI.getFiles(evt); // Retrieve file list
         if (files[0].type == "text/plain" || files[0].type == "application/vnd.ms-excel") {
             clearRoutingInfomationContainer();
-            openDataFromFile(files, map);
+            openDataFromFile(files, map, renderer);
         } else {
             $('#invalidFile').modal('show')
         }
@@ -56,37 +60,24 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 
-    geocoder = new IWGeocoderClient();
     IWEventManager.addListener(geocoder, 'ongeocode', function(event) {
         if (event.status == "OK") {
-            //   console.log("okay");
-            AddressToCoords(event, map);
-        } else {
-            //   console.log("Status: false")
-            // console.log(event);
-        }
+            AddressToCoords(event, map, renderer);
+        } else {}
     });
 
-    IWEventManager.addCustomListener(IWRoutingManager, 'onroute', function(event) {
-        if (event.success) {
-            exportAllCoordinates(optimizeResult, event);
-            getRouteCoordsWith30mDistance(filterInterstaionsWithRouteCoords, map);
-            showRoutingInfomationBeforeOptimize(event);
-            showRoutingInfomationafterOptimize(event);
-        } else {
-            console.log('Route calculation failed');
-        }
-    });
+    IWEventManager.addCustomListener(IWRoutingManager, 'onroute', function(event) {});
 
     $("#opti-btn").click(function() {
         let loading = document.getElementById('load')
         loading.classList.add("loading");
-        optimizeRouting(ConvertCoords, map);
+        // optimizeRouting(ConvertCoords, map);
+        getOptimizeRouting(ConvertCoords, map, renderer);
     });
 
     $("#download-btn").click(function() {
         var hiddenElement = document.createElement('a');
-        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(exportToCsVFile());
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(createCSVFile());
         hiddenElement.target = '_blank';
         hiddenElement.download = 'FMeOptimierteRoute.csv';
         hiddenElement.click();
@@ -94,6 +85,25 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     $('#infoModal').modal('show');
+
+    $('input:radio[name=inlineRadioOptions]').change(function() {
+        if (this.value == 'oneway') {
+            routingWayOption = "oneway";
+            if (uploadConditions === true) {
+                showMarker(ConvertCoords, map);
+                showRoute(ConvertCoords, renderer, map);
+                uploadConditions = true;
+            } else if (uploadConditions === false) {}
+        } else if (this.value == 'roundtrip') {
+            routingWayOption = "roundtrip";
+            if (uploadConditions === true) {
+                showMarker(ConvertCoords, map);
+                showRoute(ConvertCoords, renderer, map);
+                uploadConditions = true;
+            } else if (uploadConditions === false) {}
+        }
+    });
+
 });
 
 Number.prototype.toRad = function() {
@@ -106,7 +116,7 @@ Number.prototype.toDeg = function() {
 
 
 
-
+let optimizeExample = [];
 let fileCoords = [];
 let optimizeCoords = [];
 let optimizeResult = [];
@@ -126,27 +136,30 @@ let boundsDistance = 200000;
 let donwloadButton = document.getElementById('download-btn');
 let optimizedButton = document.getElementById('opti-btn');
 let reg = new RegExp('^[0-9]+$');
+let routingWayOption = "oneway"
 
 let addressObjects = [];
 let errorWrongWriting = [];
 let errorMissData = [];
 let ConvertCoords = [];
+let uploadConditions = false;
 
-function openDataFromFile(files, map) {
+function openDataFromFile(files, map, renderer) {
     FileAPI.readAsText(files[0], "utf-8", function(evt) {
         if (evt.type == 'load') {
             if (evt.target.type == "text/plain") {
                 var text = evt.result;
                 let firstCharFromText = text.charAt(0);
                 if (reg.test(firstCharFromText)) {
-                    lines = text.split("\n"), output = [];
+                    lines = text.split("\r\n"), output = [];
                     splitLinesFromTextFile(lines);
                     checkCoordsBeforeStart(ConvertCoords);
                     if (ConvertCoords.length <= 200) {
                         if (distanceFromMaxandMinLat < boundsDistance && distanceFromMaxandMinLong < boundsDistance) {
                             $('#errorContainer').remove();
                             showMarker(ConvertCoords, map);
-                            showRoute(ConvertCoords, map);
+                            showRoute(ConvertCoords, renderer, map);
+                            uploadConditions = true;
                             enableButtons();
                         } else {
                             $('#errorContainer').remove();
@@ -178,7 +191,8 @@ function openDataFromFile(files, map) {
                         if (distanceFromMaxandMinLat < boundsDistance && distanceFromMaxandMinLong < boundsDistance) {
                             $('#errorContainer').remove();
                             showMarker(ConvertCoords, map);
-                            showRoute(ConvertCoords, map);
+                            showRoute(ConvertCoords, renderer, map);
+                            uploadConditions = true;
                             enableButtons();
                         } else {
                             $('#errorContainer').remove();
@@ -252,7 +266,6 @@ async function processArray(array) {
     for (const item of array) {
         await delayedLog(item);
     }
-    // console.log('Done!');
     loading.classList.remove("loading");
 }
 
@@ -274,7 +287,6 @@ function errorMessageForMissAndWrongWriting(errorWrongWriting, errorMissData) {
         errorContainer.appendChild(span1);
 
         errorMissData.forEach(element => {
-            // console.log(element);
             let showErrorMissData = document.createElement('div')
             showErrorMissData.className = "mt-1 mb-1 text-decoration-underline";
             showErrorMissData.innerHTML = "Zeile " + element[0] + "  :  " + element[1];
@@ -323,7 +335,6 @@ function checkListofErrors(arr1, arr2) {
 }
 
 function createObjectAndCheckForEachLine(lines, index) {
-    // console.log(index);
     let addresses = {
         street: null,
         number: null,
@@ -375,8 +386,6 @@ function geocodeEachAddress(array) {
             address.setZipCode(element.citycode);
             address.setCity(element.city);
             address.setCountryCode("D");
-            // console.log(address);
-            //    geocoder.geocodeAddressString(address,'D', 1);
             geocoder.geocodeAddress(address, 1)
         });
     }
@@ -385,7 +394,7 @@ function geocodeEachAddress(array) {
 }
 
 
-function AddressToCoords(event, map) {
+function AddressToCoords(event, map, renderer) {
 
 
     let temp = []
@@ -403,7 +412,8 @@ function AddressToCoords(event, map) {
             if (distanceFromMaxandMinLat < boundsDistance && distanceFromMaxandMinLong < boundsDistance) {
                 $('#errorContainer').remove();
                 showMarker(ConvertCoords, map);
-                showRoute(ConvertCoords, map);
+                showRoute(ConvertCoords, renderer, map);
+                uploadConditions = true;
                 enableButtons();
             } else {
                 $('#errorContainer').remove();
@@ -419,9 +429,7 @@ function AddressToCoords(event, map) {
             RemoveMarkerAndRoute(map);
         }
 
-    } else {
-        // console.log("not same");
-    }
+    } else {}
 }
 
 function errorMessageForCoordsThatAreFarFromEachOther() {
@@ -640,27 +648,157 @@ function showMarker(ConvertCoords, map) {
 
 }
 
-function showRoute(ConvertCoords) {
-    let tempInterstations = [];
-    IWRoutingManager.removeRoute();
-    let startCoords = new IWCoordinate(ConvertCoords[0][1], ConvertCoords[0][0], IWCoordinate.WGS84);
-    let destiCoords = new IWCoordinate(ConvertCoords[ConvertCoords.length - 1][1], ConvertCoords[ConvertCoords.length - 1][0], IWCoordinate.WGS84)
-    start = new IWAddress()
-    start.setCoordinate(startCoords);
-    IWRoutingManager.updateStart(start);
-    tempInterstations = [];
-    for (let i = 1; i < ConvertCoords.length; i++) {
-        let intCoords = new IWCoordinate(ConvertCoords[i][1], ConvertCoords[i][0], IWCoordinate.WGS84);
-        let interstation = new IWAddress();
-        interstation.setCoordinate(intCoords)
-        tempInterstations.push(interstation);
+
+
+function showRoute(array, renderer, map) {
+    let ConvertedCoordinates = array;
+    let waypoints = "";
+
+
+    if (routingWayOption === "oneway") {
+        let startCoordsOneWay = new IWCoordinate(array[0][1], array[0][0], IWCoordinate.WGS84);
+        let destinationCoordsOneWay = new IWCoordinate(array[array.length - 1][1], array[array.length - 1][0], IWCoordinate.WGS84);
+
+        for (let i = 0; i < ConvertedCoordinates.length; i++) {
+            if (i === 0 || i === ConvertedCoordinates.length - 1) {
+
+            } else {
+                let wayCoord = ConvertedCoordinates[i][0] + "%2C" + ConvertedCoordinates[i][1] + ";"
+                waypoints += wayCoord;
+            }
+        }
+
+        $.ajax({
+            // url: "https://api.maptrip.de/v1/route?provider=TomTom&from=50.73270%2C7.09630&to=50.94212%2C6.95781&waypoints=50.8382171%2C7.0917674%2C500&startTime=2021-07-06T17%3A02%3A00%2B02%3A00&vehicle=car&type=fastest&traffic=false&alternatives=0&avoidToll=false&avoidFerries=false&avoidHighways=false&width=0&height=0&length=0&weight=0&axles=0&axleLoad=0&hazardousGoods=false&explosiveMaterials=false&materialsHarmfulToWater=false&tunnelRestrictionCode=tunnelRestrictionCode_example&joinGeometry=true",
+            url: "https://api.maptrip.de/v1/route?provider=TomTom&from=" + startCoordsOneWay.getY().toString() + "%2C" + startCoordsOneWay.getX().toString() + "&to=" + destinationCoordsOneWay.getY().toString() + "%2C" + destinationCoordsOneWay.getX().toString() + "&waypoints=" + waypoints + "&startTime=NOW&vehicle=car&type=fastest&traffic=false&alternatives=0&avoidToll=false&avoidFerries=false&avoidHighways=false&width=0&height=0&length=0&weight=0&axles=0&axleLoad=0&hazardousGoods=false&explosiveMaterials=false&materialsHarmfulToWater=false&tunnelRestrictionCode=tunnelRestrictionCode_example&joinGeometry=true",
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("accept", "application/json");
+                xhr.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzYWxlaEBpbmZvd2FyZS5kZSIsImF1dGgiOiJST0xFX1VTRVIiLCJpZCI6ODY5MDEsImV4cCI6MTY0NDE1NDQxMX0.z8Qr5auhVW3L5MCf3Wq87c8l2NkA3v9iCxzxMLVZdZEZEgBxBQJzMgDVVDKThkF3qU_1vXEAYM7ftDlK-cm5fw");
+                xhr.setRequestHeader("Content-Type", "application/json");
+
+            },
+            success: function(data) {
+                showRouteonMap(data, map, renderer)
+                routingInfomation(data);
+            }
+        })
+    } else if (routingWayOption === "roundtrip") {
+        let startCoordsOneWay = new IWCoordinate(array[0][1], array[0][0], IWCoordinate.WGS84);
+        let destinationCoordsOneWay = new IWCoordinate(array[0][1], array[0][0], IWCoordinate.WGS84);
+
+        for (let i = 0; i < ConvertedCoordinates.length; i++) {
+            if (i === 0 || i === ConvertedCoordinates.length - 1) {} else {
+                let wayCoord = ConvertedCoordinates[i][0] + "%2C" + ConvertedCoordinates[i][1] + ";"
+                waypoints += wayCoord;
+            }
+        }
+
+        $.ajax({
+            // url: "https://api.maptrip.de/v1/route?provider=TomTom&from=50.73270%2C7.09630&to=50.94212%2C6.95781&waypoints=50.8382171%2C7.0917674%2C500&startTime=2021-07-06T17%3A02%3A00%2B02%3A00&vehicle=car&type=fastest&traffic=false&alternatives=0&avoidToll=false&avoidFerries=false&avoidHighways=false&width=0&height=0&length=0&weight=0&axles=0&axleLoad=0&hazardousGoods=false&explosiveMaterials=false&materialsHarmfulToWater=false&tunnelRestrictionCode=tunnelRestrictionCode_example&joinGeometry=true",
+            url: "https://api.maptrip.de/v1/route?provider=TomTom&from=" + startCoordsOneWay.getY().toString() + "%2C" + startCoordsOneWay.getX().toString() + "&to=" + destinationCoordsOneWay.getY().toString() + "%2C" + destinationCoordsOneWay.getX().toString() + "&waypoints=" + waypoints + "&startTime=NOW&vehicle=car&type=fastest&traffic=false&alternatives=0&avoidToll=false&avoidFerries=false&avoidHighways=false&width=0&height=0&length=0&weight=0&axles=0&axleLoad=0&hazardousGoods=false&explosiveMaterials=false&materialsHarmfulToWater=false&tunnelRestrictionCode=tunnelRestrictionCode_example&joinGeometry=true",
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("accept", "application/json");
+                xhr.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzYWxlaEBpbmZvd2FyZS5kZSIsImF1dGgiOiJST0xFX1VTRVIiLCJpZCI6ODY5MDEsImV4cCI6MTY0NDE1NDQxMX0.z8Qr5auhVW3L5MCf3Wq87c8l2NkA3v9iCxzxMLVZdZEZEgBxBQJzMgDVVDKThkF3qU_1vXEAYM7ftDlK-cm5fw");
+                xhr.setRequestHeader("Content-Type", "application/json");
+
+            },
+            success: function(data) {
+                showRouteonMap(data, map, renderer)
+                routingInfomation(data);
+            }
+        })
     }
 
-    IWRoutingManager.setInterstations(tempInterstations);
-    destination = new IWAddress();
-    destination.setCoordinate(startCoords);
-    IWRoutingManager.updateDestination(destination);
+}
 
+function showRouteWithOptimizeCoords(array, renderer, map) {
+    let ConvertedCoordinates = array;
+    let waypoints = "";
+
+
+    if (routingWayOption === "oneway") {
+        let startCoordsOneWay = new IWCoordinate(array[0][1], array[0][0], IWCoordinate.WGS84);
+        let destinationCoordsOneWay = new IWCoordinate(array[array.length - 1][1], array[array.length - 1][0], IWCoordinate.WGS84);
+
+        for (let i = 0; i < ConvertedCoordinates.length; i++) {
+            if (i === 0 || i === ConvertedCoordinates.length - 1) {
+
+            } else {
+                let wayCoord = ConvertedCoordinates[i][0] + "%2C" + ConvertedCoordinates[i][1] + ";"
+                waypoints += wayCoord;
+            }
+        }
+
+        $.ajax({
+            url: "https://api.maptrip.de/v1/route?provider=TomTom&from=" + startCoordsOneWay.getY().toString() + "%2C" + startCoordsOneWay.getX().toString() + "&to=" + destinationCoordsOneWay.getY().toString() + "%2C" + destinationCoordsOneWay.getX().toString() + "&waypoints=" + waypoints + "&startTime=NOW&vehicle=car&type=fastest&traffic=false&alternatives=0&avoidToll=false&avoidFerries=false&avoidHighways=false&width=0&height=0&length=0&weight=0&axles=0&axleLoad=0&hazardousGoods=false&explosiveMaterials=false&materialsHarmfulToWater=false&tunnelRestrictionCode=tunnelRestrictionCode_example&joinGeometry=true",
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("accept", "application/json");
+                xhr.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzYWxlaEBpbmZvd2FyZS5kZSIsImF1dGgiOiJST0xFX1VTRVIiLCJpZCI6ODY5MDEsImV4cCI6MTY0NDE1NDQxMX0.z8Qr5auhVW3L5MCf3Wq87c8l2NkA3v9iCxzxMLVZdZEZEgBxBQJzMgDVVDKThkF3qU_1vXEAYM7ftDlK-cm5fw");
+                xhr.setRequestHeader("Content-Type", "application/json");
+
+            },
+            success: function(data) {
+                showRouteonMap(data, map, renderer)
+                optimizeRoutingInfomation(data)
+                exportAllCoordinates(optimizeResult, data);
+                getRouteCoordsWith30mDistance(filterInterstaionsWithRouteCoords, map);
+            }
+        })
+    } else if (routingWayOption === "roundtrip") {
+        let startCoordsOneWay = new IWCoordinate(array[0][1], array[0][0], IWCoordinate.WGS84);
+        let destinationCoordsOneWay = new IWCoordinate(array[array.length - 1][1], array[array.length - 1][0], IWCoordinate.WGS84);
+
+        for (let i = 0; i < ConvertedCoordinates.length; i++) {
+            if (i === 0 || i === ConvertedCoordinates.length - 1) {} else {
+                let wayCoord = ConvertedCoordinates[i][0] + "%2C" + ConvertedCoordinates[i][1] + ";"
+                waypoints += wayCoord;
+            }
+        }
+
+        $.ajax({
+            url: "https://api.maptrip.de/v1/route?provider=TomTom&from=" + startCoordsOneWay.getY().toString() + "%2C" + startCoordsOneWay.getX().toString() + "&to=" + destinationCoordsOneWay.getY().toString() + "%2C" + destinationCoordsOneWay.getX().toString() + "&waypoints=" + waypoints + "&startTime=NOW&vehicle=car&type=fastest&traffic=false&alternatives=0&avoidToll=false&avoidFerries=false&avoidHighways=false&width=0&height=0&length=0&weight=0&axles=0&axleLoad=0&hazardousGoods=false&explosiveMaterials=false&materialsHarmfulToWater=false&tunnelRestrictionCode=tunnelRestrictionCode_example&joinGeometry=true",
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("accept", "application/json");
+                xhr.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzYWxlaEBpbmZvd2FyZS5kZSIsImF1dGgiOiJST0xFX1VTRVIiLCJpZCI6ODY5MDEsImV4cCI6MTY0NDE1NDQxMX0.z8Qr5auhVW3L5MCf3Wq87c8l2NkA3v9iCxzxMLVZdZEZEgBxBQJzMgDVVDKThkF3qU_1vXEAYM7ftDlK-cm5fw");
+                xhr.setRequestHeader("Content-Type", "application/json");
+
+            },
+            success: function(data) {
+                showRouteonMap(data, map, renderer)
+                optimizeRoutingInfomation(data)
+                exportAllCoordinates(optimizeResult, data);
+                getRouteCoordsWith30mDistance(filterInterstaionsWithRouteCoords, map);
+            }
+        })
+    }
+
+}
+
+function showRouteonMap(data, map, renderer) {
+
+    renderer.clearContainer();
+
+    let iwRouteCoords = [];
+
+
+    let min = data[0].summary.boundingBox.min;
+    let max = data[0].summary.boundingBox.max;
+
+    let bound1 = new IWCoordinate(min.lon, min.lat, IWCoordinate.WGS84)
+    let bound2 = new IWCoordinate(max.lon, max.lat, IWCoordinate.WGS84)
+
+    var bounds = new IWBounds(bound1, bound2);
+
+    map.setCenter(bounds.getCenter(), map.getBoundsZoomlevel(bounds) - 1);
+
+    data[0].geometry.features[0].geometry.coordinates.forEach((element) => {
+        let newCoords = new IWCoordinate(element[0], element[1], IWCoordinate.WGS84);
+        iwRouteCoords.push(newCoords);
+    });
+
+    renderer.drawPolyline(iwRouteCoords, { stroke: 'rgb(0, 170, 255)', strokeWidth: 5 });
+    polylineIsDraw = true;
+    renderer.render();
 }
 
 function splitLinesFromTextFile(lines) {
@@ -672,152 +810,249 @@ function splitLinesFromTextFile(lines) {
     }
 }
 
-function optimizeRouting(fileCoords, map) {
-    let tempCoords = []
-    optimizeCoords = [];
-    optimizeResult = [];
-    //  console.log(fileCoords);
-    fileCoords.forEach(element => {
-        let coordsInMercator = new IWCoordinate(element[1], element[0], IWCoordinate.WGS84).toMercator();
+function sendRequest(arrayCoords, renderer) {
 
-        let stringX = coordsInMercator._x.toString().split(".")[0];
-        let stringY = coordsInMercator._y.toString().split(".")[0];
+    let datawaypoints = "";
 
-        let coordinates = 'coordinates=' + stringX + ';' + stringY;
-        tempCoords.push(coordinates)
-    });
-
-    let start = 0;
-    let destination = fileCoords.length - 1;
-
-
-
-    let url = "https://maps.infoware.de/MapSuiteBackend/tour.json";
-    let data = 'vnr=0&pnr=0&routeType=Speed&mobilityProfile=types_fast.txt' + '&' + $.makeArray(tempCoords).join('&');
-    $.getJSON(url, data, function(result) {
-        let loading = document.getElementById('load')
-        if (result.success === true) {
-            loading.classList.remove("loading");
-        } else {
-            loading.classList.remove("loading");
+    if (routingWayOption === "oneway") {
+        let start = {
+            'coordinate': {
+                'lat': arrayCoords[0][0],
+                'lon': arrayCoords[0][1]
+            },
+            'name': "First",
+            'start': true
         }
+        let desti = {
+            'coordinate': {
+                'lat': arrayCoords[arrayCoords.length - 1][0],
+                'lon': arrayCoords[arrayCoords.length - 1][1]
+            },
+            'name': "Last",
+            'destination': true
+        }
+        datawaypoints += JSON.stringify(start).concat(",");
+        for (let i = 0; i < arrayCoords.length; i++) {
 
-        $('#list-table').empty();
-        let temp = [];
-        let tempElement = []
-            // console.log(result.tour.stations);
-        let getResultStations = result.tour.stations;
-        // console.log(result);
-        result.tour.stations.forEach(function(element, index) {
-            if (index != getResultStations.length - 1) {
-                let optimizeCoordinates = new IWCoordinate(element.x, element.y).toWGS84();
-                showCoordsInTheTableforCoords(optimizeCoordinates._x, optimizeCoordinates._y)
-                temp.push(optimizeCoordinates._y.toString());
-                temp.push(optimizeCoordinates._x.toString());
-                tempElement.push(element.y.toString());
-                tempElement.push(element.x.toString());
-                optimizeResult.push(tempElement);
-                tempElement = [];
-                optimizeCoords.push(temp);
-                temp = [];
+            if (i === 0 || i === arrayCoords.length - 1) {
+
+            } else {
+                let points = {
+                    'coordinate': {
+                        'lat': arrayCoords[i][0],
+                        'lon': arrayCoords[i][1]
+                    },
+                    'name': i.toString(),
+                }
+                datawaypoints += JSON.stringify(points).concat(",");
             }
-        });
-        showMarker(optimizeCoords, map);
-        showRoute(optimizeCoords, map);
-    });
+        }
+        datawaypoints += JSON.stringify(desti)
+    } else if (routingWayOption === "roundtrip") {
+
+        let start = {
+            'coordinate': {
+                'lat': arrayCoords[0][0],
+                'lon': arrayCoords[0][1]
+            },
+            'name': "First",
+            'start': true,
+            'destination': true
+        }
+        datawaypoints += JSON.stringify(start).concat(",");
+        for (let i = 0; i < arrayCoords.length; i++) {
+            if (i === 0) {} else {
+                let points = {
+                    'coordinate': {
+                        'lat': arrayCoords[i][0],
+                        'lon': arrayCoords[i][1]
+                    },
+                    'name': i.toString(),
+                }
+                if (i === arrayCoords.length - 1) {
+                    datawaypoints += JSON.stringify(points);
+                } else {
+                    datawaypoints += JSON.stringify(points).concat(",");
+                }
+            }
+        }
+    }
+
+
+    var url = "https://api.maptrip.de/v1/optimize/stops?provider=TomTom&startTime=2021-07-06T17%3A02%3A00%2B02%3A00&vehicle=car&type=fastest&traffic=false" +
+        "&width=0&height=0&length=0&weight=0&axles=0&axleLoad=0&hazardousGoods=false&explosiveMaterials=false&materialsHarmfulToWater=false" +
+        "&tunnelRestrictionCode=tunnelRestrictionCode_example";
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+
+    xhr.setRequestHeader("accept", "application/json");
+    xhr.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzYWxlaEBpbmZvd2FyZS5kZSIsImF1dGgiOiJST0xFX1VTRVIiLCJpZCI6ODY5MDEsImV4cCI6MTY0NDE1NDQxMX0.z8Qr5auhVW3L5MCf3Wq87c8l2NkA3v9iCxzxMLVZdZEZEgBxBQJzMgDVVDKThkF3qU_1vXEAYM7ftDlK-cm5fw");
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onload = function(e) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 202) {
+                let myobj = JSON.parse(xhr.responseText);
+                getOptimizeData(myobj.id, renderer)
+            } else {
+                console.log("Error")
+            }
+        }
+    };
+
+    xhr.onerror = function(e) {
+        console.error(xhr.statusText);
+    };
+
+    let data = "[" + datawaypoints + "]";
+    xhr.send(data);
 }
 
-function exportAllCoordinates(optimizeResult, event) {
-    if (optimizeResult.length != 0) {
+function getOptimizeData(id, renderer) {
 
-        let tempInterstaionsWithTheDirectionsCoords = [];
-        let tempAllDirectons = [];
-        let routeCoords = event.route.getCoordinates();
+    optimizeCoords = [];
 
-        let temp = [];
-        // console.log(routeCoords);
-        routeCoords.forEach(element => {
-            let iwcoords = new IWCoordinate(element._x, element._y);
-            temp.push(iwcoords._y.toString());
-            temp.push(iwcoords._x.toString());
-            tempAllDirectons.push(temp);
-            temp = [];
+    var url = "https://api.maptrip.de/v1/optimize/stops/" + id.toString() + "";
+
+
+    $.ajax({
+            url: url,
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("accept", "application/json");
+                xhr.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzYWxlaEBpbmZvd2FyZS5kZSIsImF1dGgiOiJST0xFX1VTRVIiLCJpZCI6ODY5MDEsImV4cCI6MTY0Mzk4NjU5NX0.sKcj24AkHnBCi7KZok7rR6p2IMGsF1yIR7QjxcgFpt5Vt0qTRMPKewbjvq5tzBjm5o36k3wuZfDvJsslhSBB3w");
+                xhr.setRequestHeader("Content-Type", "application/json");
+            }
+        })
+        .done(function(data) {
+
+            if (data.status === "Running") {
+
+                getOptimizeData(id.toString(), renderer)
+
+            } else if (data.status === "Done") {
+                removeLoadingView();
+                $('#list-table').empty();
+
+
+                let tmp = [];
+                let tmp1 = [];
+                for (let i = 0; i < data.stops.length; i++) {
+                    tmp = []
+                    tmp1 = []
+                    tmp.push(data.stops[i].coordinate.lat.toString())
+                    tmp.push(data.stops[i].coordinate.lon.toString())
+                    let tmpCoord = new IWCoordinate(data.stops[i].coordinate.lat, data.stops[i].coordinate.lon, IWCoordinate.WGS84).toMercator();
+                    tmp1.push(tmpCoord._x.toString().split(".")[0])
+                    tmp1.push(tmpCoord._y.toString().split(".")[0])
+                    showCoordsInTheTableforCoords(data.stops[i].coordinate.lat.toString(), data.stops[i].coordinate.lon.toString())
+                    optimizeCoords.push(tmp)
+                    optimizeResult.push(tmp1)
+
+                }
+
+                showMarker(optimizeCoords, map);
+                showRouteWithOptimizeCoords(optimizeCoords, renderer, map)
+            }
+
         });
 
 
 
-        // console.log(tempAllDirectons);
+}
+
+function removeLoadingView() {
+    let loading = document.getElementById('load')
+    loading.classList.remove("loading");
+}
+
+function getOptimizeRouting(fileCoords, map, renderer) {
+    sendRequest(fileCoords, renderer)
+}
 
 
-        for (let i = 0; i < tempAllDirectons.length; i++) {
+function exportAllCoordinates(optimizeResult, event) {
 
-            for (let k = 0; k < optimizeResult.length; k++) {
+    if (optimizeResult.length != 0) {
+        let routeIWCoords = [];
+        let optimizeIWCoords = [];
+        let routeWithWaypoints = [];
+        filterInterstaionsWithRouteCoords = [];
 
-                if (tempAllDirectons[i][0] === optimizeResult[k][0] && tempAllDirectons[i][1] === optimizeResult[k][1]) {
+        let routeCoords = event[0].geometry.features[0].geometry.coordinates
 
-                    tempAllDirectons[i].splice(2, 0, "SAMMELN");
+        let tmp = [];
+        optimizeCoords.forEach(function(element) {
+            let createOptimizeIwCoords = new IWCoordinate(element[1], element[0], "WGS84")
+            tmp.push(createOptimizeIwCoords);
+            optimizeIWCoords.push(tmp);
+            tmp = []
+        })
+
+        let tmp1 = []
+        routeCoords.forEach(function(element) {
+            let createIwCoords = new IWCoordinate(element[0], element[1], "WGS84")
+            tmp1.push(createIwCoords);
+            routeIWCoords.push(tmp1);
+            tmp1 = []
+        })
+
+        for (let i = 0; i < routeIWCoords.length; i++) {
+
+            for (let k = 0; k < optimizeIWCoords.length; k++) {
+                if (routeIWCoords[i][0].equals(optimizeIWCoords[k][0]) === true) {
+                    if (k === 0) {
+                        routeIWCoords[i].splice(0, 1, optimizeIWCoords[k][0]);
+                        routeIWCoords[i].splice(2, 0, "SAMMELN");
+                        optimizeIWCoords.shift();
+                    } else {}
                 } else {
 
                 }
 
             }
-            tempInterstaionsWithTheDirectionsCoords.push(tempAllDirectons[i]);
+            routeWithWaypoints.push(routeIWCoords[i])
         }
 
-
-
-        tempInterstaionsWithTheDirectionsCoords.forEach(coords => {
-            let temp = [];
-            if (coords.length >= 3) {
-                const key = coords[0] + " - " + coords[1];
-                if (koordMap.hasOwnProperty(key)) {} else {
-                    koordMap[key] = true;
-                    let newCoords = new IWCoordinate(coords[1], coords[0]).toWGS84();
-                    temp.push(newCoords);
-                    temp.push(coords[2]);
-                    filterInterstaionsWithRouteCoords.push(temp);
-                    temp = [];
-                }
+        routeWithWaypoints.forEach(function(element) {
+            if (element.length === 2) {
+                let tmp = []
+                tmp.push(element[0])
+                tmp.push(element[1])
+                filterInterstaionsWithRouteCoords.push(tmp)
             } else {
-                let newCoords = new IWCoordinate(coords[1], coords[0]).toWGS84();
-                filterInterstaionsWithRouteCoords.push(newCoords);
+                let coordToWGS84 = element[0]
+                filterInterstaionsWithRouteCoords.push(coordToWGS84);
             }
-        });
-
-
+        })
 
     } else {
 
     }
 }
 
-function showRoutingInfomationBeforeOptimize(event) {
-    if (optimizeResult.length != 0) {
+function routingInfomation(data) {
+    let routeLength = data[0].summary.length;
+    let km = routeLength / 1000;
+    let drivingTime = data[0].summary.drivingTime
+    let drivingTimeinFormat = new Date(drivingTime * 1000).toISOString().substr(11, 5);
+    let beforeRouteddiv = document.getElementById("before-optimize");
+    let text = "Eine Route wurde berechnet, die Routenlänge beträgt " + km.toFixed(1) + "KM und die geschätzte Fahrtzeit beträgt " + drivingTimeinFormat + " Stunden.";
+    beforeRouteddiv.innerHTML = text
 
-    } else {
-        let beforeRouteddiv = document.getElementById("before-optimize");
-        let routeLengthinKm = event.routes[0].getRouteLength().toString();
-        let str = routeLengthinKm.slice(0, -3);
-        let routeLengthinKmGetParsed = parseInt(str);
-        let text = "Eine Route wurde berechnet, die Routenlänge beträgt " + routeLengthinKmGetParsed + "KM und die geschätzte Fahrtzeit beträgt " + event.routes[0].getFormattedDrivingTime() + " Stunden.";
-
-        beforeRouteddiv.innerHTML = text;
-    }
 
 }
 
-function showRoutingInfomationafterOptimize(event) {
-    if (optimizeResult.length != 0) {
-        let afterRouteddiv = document.getElementById("after-optimize");
-        let routeLengthinKm = event.routes[0].getRouteLength().toString();
-        let str = routeLengthinKm.slice(0, -3);
-        let routeLengthinKmGetParsed = parseInt(str);
-        let text = "Eine Optimierte Route wurde berechnet, die Routenlänge beträgt " + routeLengthinKmGetParsed + "KM und die geschätzte Fahrtzeit beträgt " + event.routes[0].getFormattedDrivingTime() + " Stunden.";
-        afterRouteddiv.innerHTML = text;
-    } else {
-
-    }
+function optimizeRoutingInfomation(data) {
+    let routeLength = data[0].summary.length;
+    let km = routeLength / 1000;
+    let drivingTime = data[0].summary.drivingTime
+    let drivingTimeinFormat = new Date(drivingTime * 1000).toISOString().substr(11, 5);
+    let afterRouteddiv = document.getElementById("after-optimize");
+    let text = "Eine Optimierte Route wurde berechnet, die Routenlänge beträgt " + km.toFixed(1) + "KM und die geschätzte Fahrtzeit beträgt " + drivingTimeinFormat + " Stunden.";
+    afterRouteddiv.innerHTML = text;
 }
+
 
 function clearRoutingInfomationContainer() {
     $('#before-optimize').empty();
@@ -826,9 +1061,13 @@ function clearRoutingInfomationContainer() {
 
 function getRouteCoordsWith30mDistance(array, map) {
 
+    routeCoordsWithInterstaionsWith30MetersDistance = [];
+
     if (array != 0) {
 
         nextMarkerAt = 0
+
+
 
 
         array.forEach(ele => {
@@ -853,14 +1092,11 @@ function getRouteCoordsWith30mDistance(array, map) {
             }
         }
 
-        routeCoordsWithInterstaionsWith30MetersDistance.push(array[0][0]);
+        // routeCoordsWithInterstaionsWith30MetersDistance.push(array[0][0]);
 
     } else {
 
-
     }
-
-
 
 }
 
@@ -900,9 +1136,7 @@ function moveAlongPath(points, distance, index) {
     let secondCoord;
     let isSecondInterstation = false;
 
-
     if (index < points.length) {
-
 
         if (Array.isArray(points[index])) {
             isCurrentInterstation = true;
@@ -959,7 +1193,7 @@ function moveAlongPath(points, distance, index) {
     }
 }
 
-function exportToCsVFile() {
+function createCSVFile() {
     var csvStr = exportfields.join(";") + "\n";
     routeCoordsWithInterstaionsWith30MetersDistance.forEach(element => {
         if (element.length >= 2) {

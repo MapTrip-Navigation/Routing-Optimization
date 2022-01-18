@@ -16,6 +16,16 @@ into your page and start using the API. This will load the core API, the modules
 
 Also you need the FileAPI.min.js from https://github.com/mailru/FileAPI. The File is already included in the project.
 
+The routing and optimisation sequence was implemented using the MapTrip Server API.
+
+On our web pages there is a common entry point for a detailed description of the interfaces: https://api.maptrip.de/swagger-ui.html
+
+To use the Maptrip Server API you need a web token for the authentication, because is required to use the API interface functions.
+
+The user accounts are managed in MapTrip Manager. If you do not have an account yet, please contact our sales department via eMail : info@infoware.de. In the following we assume that you have a valid username and password.
+
+The token in the requests is specified in the form "Authorization: Bearer [token]".
+
 ## Upload Locations (Coordinates or Addresses), Show On Map, Calculate Route
 
 
@@ -96,48 +106,39 @@ The Second Function that will be called is showRoute. This function calculate a 
 
 ## Optimize Stop Sequence
 
-Next, you can perform a optimization. if you click on the Optimise button , then a loading bar appears until the optimised sequence has been successfully created. The new order of the Markers will be displayed on the map and a route will be calculated. All this is done by the function OptimizeRouting.
+Next, you can perform a optimization. if you click on the Optimise button , then a loading bar appears until the optimised sequence has been successfully created. The new order of the Markers will be displayed on the map and a route will be calculated. All this is done by the function getRoutingOptimization.
 
-All you have to do is to pass an array with the Coordinates and the map as a parameter to the function. 
-The first step is to create new IWCoordinate from the coordinates.
+All you have to do is to pass an array with the Coordinates ,the map as a parameter and the renderer to the function. In the first step, the stops and other relevant information (vehicle properties, etc.) are transmitted to the server via POST request. The response to this initial request contains an ID that is used in the second step, the subsequent GET request, is used to request the calculated route.
 
-![](readme_png/ArrayForOptimize.PNG)
 
-Here you must note that the coordinates should have the projection type Mercator.
-The coordinates are saved into a new array and inserted at the following interface.
+The first step is to send the post request with data
 
-![](readme_png/optimizationurl.PNG)
+![](readme_png/SendRequest.png)
 
-The url refers to our Optimizer and creates an optimal sequence from the coordinates.
+If the Request is done you get as a response a ID. Which you to need save them and continue with a GET Request to get the Optimize order. After that you can push the optimize order to a array.
+Now you can pass the array to the functions showMarker and showRoute. They show the new order of the markers on the map and the new calculated route.
 
-With the result we get the array (optimizeCoords) with the optimal order and create new IWCoordinates with the projection type WGS84. These are then saved in an array. Now you can pass the array to the functions showMarker and showRoute. They show the new order of the markers on the map and the new calculated route.
-
-Note!! : We have also create a array (optimizeResult) with the optimal order but with the projection type Mercator. This important for the nex function to create a FollowMe-Track from the route file.
 
 
 
 ## Create FollowMe-Track From Route File
-If the optimised route is now displayed, you get a Object from the event onorute.
 
-![](readme_png/EventOnroute.PNG)
 
-Now you can make a FollowMe track out of it. Here you have to call the function exportAllCoordinates. You need to pass the array (optimizeResult) and the event as a parameter to the function.
-With the object you get the route file with all coordinates.
-We have to format the coordinates for the later course.
+Now you can make a FollowMe track out of it. Here you have to call the function exportAllCoordinates. You need to pass the array (optimizeCoords) and the route data as a parameter to the function. With the object you get the route file with all coordinates. We have to format the coordinates for the later course.
 
-![](readme_png/exportAllCoordinates1.PNG)
+![](readme_png/changeCoordinatesFormat.PNG)
 
 Here we need to check which of the coordinates is a stop.
 
-![](readme_png/exportAllCoordinates2.PNG)
+![](readme_png/checkStops.PNG)
 
-It can happen that some stop coordinates are duplicated. What we need to do is to filter them out.
+After that we sorted the array.
 
 ![](readme_png/exportAllCoordinates3.PNG)
 
 This is what our array currently looks like
 
-![](readme_png/ArrayExample.PNG)
+![](readme_png/sortArray.PNG)
 
 
 Now we want to use the function getRouteCoordsWith30mDistance to make sure that our coordinates are all 30m apart. For this we pass the array above to the function.
