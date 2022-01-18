@@ -914,8 +914,6 @@ function getOptimizeData(id, renderer) {
     optimizeCoords = [];
 
     var url = "https://api.maptrip.de/v1/optimize/stops/" + id.toString() + "";
-
-
     $.ajax({
             url: url,
             beforeSend: function(xhr) {
@@ -925,16 +923,11 @@ function getOptimizeData(id, renderer) {
             }
         })
         .done(function(data) {
-
             if (data.status === "Running") {
-
                 getOptimizeData(id.toString(), renderer)
-
             } else if (data.status === "Done") {
                 removeLoadingView();
                 $('#list-table').empty();
-
-
                 let tmp = [];
                 let tmp1 = [];
                 for (let i = 0; i < data.stops.length; i++) {
@@ -948,17 +941,11 @@ function getOptimizeData(id, renderer) {
                     showCoordsInTheTableforCoords(data.stops[i].coordinate.lat.toString(), data.stops[i].coordinate.lon.toString())
                     optimizeCoords.push(tmp)
                     optimizeResult.push(tmp1)
-
                 }
-
                 showMarker(optimizeCoords, map);
                 showRouteWithOptimizeCoords(optimizeCoords, renderer, map)
             }
-
         });
-
-
-
 }
 
 function removeLoadingView() {

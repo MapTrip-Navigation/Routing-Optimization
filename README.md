@@ -116,9 +116,10 @@ The first step is to send the post request with data
 ![](readme_png/SendRequest.png)
 
 If the Request is done you get as a response a ID. Which you to need save them and continue with a GET Request to get the Optimize order. After that you can push the optimize order to a array.
+
+![](readme_png/getOptimizeData.png)
+
 Now you can pass the array to the functions showMarker and showRoute. They show the new order of the markers on the map and the new calculated route.
-
-
 
 
 ## Create FollowMe-Track From Route File
@@ -134,11 +135,11 @@ Here we need to check which of the coordinates is a stop.
 
 After that we sorted the array.
 
-![](readme_png/exportAllCoordinates3.PNG)
+![](readme_png/sortArray.PNG)
 
 This is what our array currently looks like
 
-![](readme_png/sortArray.PNG)
+![](readme_png/ArrayExample.PNG)
 
 
 Now we want to use the function getRouteCoordsWith30mDistance to make sure that our coordinates are all 30m apart. For this we pass the array above to the function.
